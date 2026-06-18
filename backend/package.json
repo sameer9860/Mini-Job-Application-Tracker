@@ -1,0 +1,32 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:migrate": "npx prisma migrate dev",
+    "db:generate": "npx prisma generate",
+    "db:studio": "npx prisma studio",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.0",
+    "@as-integrations/fastify": "^2.1.1",
+    "@fastify/cors": "^9.0.1",
+    "@prisma/client": "^5.22.0",
+    "fastify": "^4.28.1",
+    "graphql": "^16.9.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "prisma": "^5.22.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.9"
+  }
+}
