@@ -1,6 +1,16 @@
 # Job Application Tracker
 
-A full-stack web application to track job applications through different hiring stages — built for the InternSathi Full Stack Internship assignment.
+A full-stack web application to track job applications through different hiring stages built for the InternSathi Full Stack Internship assignment.
+
+## 🚀 Live Demo
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://mini-job-application-tracker-navy.vercel.app/ |
+| **GraphQL API** | https://mini-job-application-tracker-production.up.railway.app/graphql |
+| **Apollo Sandbox** | [Open Explorer](https://studio.apollographql.com/sandbox/explorer?endpoint=https://mini-job-application-tracker-production.up.railway.app/graphql) |
+
+
 
 ## Tech Stack
 
@@ -64,7 +74,7 @@ A full-stack web application to track job applications through different hiring 
 ## Quick Start (with Docker)
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/sameer9860/Mini-Job-Application-Tracker.git
 cd job-tracker
 docker-compose up --build
 ```
