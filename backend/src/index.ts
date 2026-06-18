@@ -10,8 +10,12 @@ import { CreateApplicationSchema, UpdateApplicationSchema } from './schema/valid
 const app = Fastify({ logger: true });
 const prisma = new PrismaClient();
 
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+
 await app.register(cors, {
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  origin: corsOrigins,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
 });
 
