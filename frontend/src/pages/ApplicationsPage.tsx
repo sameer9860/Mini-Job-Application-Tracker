@@ -1,75 +1,95 @@
-import { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { Plus, Search, Pencil, Trash2, Briefcase, Calendar, Eye } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Briefcase,
+  Calendar,
+  Eye,
+} from "lucide-react";
+import toast from "react-hot-toast";
 import {
   GET_APPLICATIONS,
   CREATE_APPLICATION,
   UPDATE_APPLICATION,
   DELETE_APPLICATION,
-} from '../graphql/operations';
-import { StatusBadge } from '../components/StatusBadge';
-import { ApplicationForm } from '../components/ApplicationForm';
-import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog';
-import { ViewApplicationDialog } from '../components/ViewApplicationDialog';
-import type { Application, CreateApplicationInput, Status } from '../lib/types';
+} from "../graphql/operations";
+import { StatusBadge } from "../components/StatusBadge";
+import { ApplicationForm } from "../components/ApplicationForm";
+import { ConfirmDeleteDialog } from "../components/ConfirmDeleteDialog";
+import { ViewApplicationDialog } from "../components/ViewApplicationDialog";
+import type { Application, CreateApplicationInput, Status } from "../lib/types";
 
-const STATUS_FILTERS: { value: Status | ''; label: string }[] = [
-  { value: '', label: 'All' },
-  { value: 'Applied', label: 'Applied' },
-  { value: 'Interviewing', label: 'Interviewing' },
-  { value: 'Offer', label: 'Offer' },
-  { value: 'Rejected', label: 'Rejected' },
+const STATUS_FILTERS: { value: Status | ""; label: string }[] = [
+  { value: "", label: "All" },
+  { value: "Applied", label: "Applied" },
+  { value: "Interviewing", label: "Interviewing" },
+  { value: "Offer", label: "Offer" },
+  { value: "Rejected", label: "Rejected" },
 ];
 
 const JOB_TYPE_LABELS: Record<string, string> = {
-  Internship: 'Internship',
-  FullTime: 'Full-time',
-  PartTime: 'Part-time',
+  Internship: "Internship",
+  FullTime: "Full-time",
+  PartTime: "Part-time",
 };
 
 export function ApplicationsPage() {
-  const [statusFilter, setStatusFilter] = useState<Status | ''>('');
-  const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState('');
+  const [statusFilter, setStatusFilter] = useState<Status | "">("");
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingApp, setEditingApp] = useState<Application | null>(null);
   const [deletingApp, setDeletingApp] = useState<Application | null>(null);
   const [viewingApp, setViewingApp] = useState<Application | null>(null);
 
-  const { data, loading, error } = useQuery<{ applications: Application[] }>(GET_APPLICATIONS, {
-    variables: {
-      status: statusFilter || undefined,
-      search: search || undefined,
+  const { data, loading, error } = useQuery<{ applications: Application[] }>(
+    GET_APPLICATIONS,
+    {
+      variables: {
+        status: statusFilter || undefined,
+        search: search || undefined,
+      },
     },
-  });
+  );
 
-  const [createApplication, { loading: creating }] = useMutation(CREATE_APPLICATION, {
-    refetchQueries: [GET_APPLICATIONS],
-    onCompleted: () => {
-      setShowForm(false);
-      toast.success('Application added!');
+  const [createApplication, { loading: creating }] = useMutation(
+    CREATE_APPLICATION,
+    {
+      refetchQueries: [GET_APPLICATIONS],
+      onCompleted: () => {
+        setShowForm(false);
+        toast.success("Application added!");
+      },
+      onError: (err) => toast.error(err.message),
     },
-    onError: (err) => toast.error(err.message),
-  });
+  );
 
-  const [updateApplication, { loading: updating }] = useMutation(UPDATE_APPLICATION, {
-    refetchQueries: [GET_APPLICATIONS],
-    onCompleted: () => {
-      setEditingApp(null);
-      toast.success('Application updated!');
+  const [updateApplication, { loading: updating }] = useMutation(
+    UPDATE_APPLICATION,
+    {
+      refetchQueries: [GET_APPLICATIONS],
+      onCompleted: () => {
+        setEditingApp(null);
+        toast.success("Application updated!");
+      },
+      onError: (err) => toast.error(err.message),
     },
-    onError: (err) => toast.error(err.message),
-  });
+  );
 
-  const [deleteApplication, { loading: deleting }] = useMutation(DELETE_APPLICATION, {
-    refetchQueries: [GET_APPLICATIONS],
-    onCompleted: () => {
-      setDeletingApp(null);
-      toast.success('Application deleted');
+  const [deleteApplication, { loading: deleting }] = useMutation(
+    DELETE_APPLICATION,
+    {
+      refetchQueries: [GET_APPLICATIONS],
+      onCompleted: () => {
+        setDeletingApp(null);
+        toast.success("Application deleted");
+      },
+      onError: (err) => toast.error(err.message),
     },
-    onError: (err) => toast.error(err.message),
-  });
+  );
 
   const handleCreate = (input: CreateApplicationInput) => {
     createApplication({ variables: { input } });
@@ -103,8 +123,12 @@ export function ApplicationsPage() {
                 <Briefcase className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Job Tracker</h1>
-                <p className="text-xs text-gray-500">Track your job applications</p>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Job Tracker
+                </h1>
+                <p className="text-xs text-gray-500">
+                  Track your job applications
+                </p>
               </div>
             </div>
             <button className="btn-primary" onClick={() => setShowForm(true)}>
@@ -126,8 +150,8 @@ export function ApplicationsPage() {
                 onClick={() => setStatusFilter(f.value)}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                   statusFilter === f.value
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 {f.label}
@@ -145,7 +169,7 @@ export function ApplicationsPage() {
                 value={searchInput}
                 onChange={(e) => {
                   setSearchInput(e.target.value);
-                  if (e.target.value === '') setSearch('');
+                  if (e.target.value === "") setSearch("");
                 }}
                 className="input pl-9 w-56"
               />
@@ -158,15 +182,21 @@ export function ApplicationsPage() {
 
         {/* Stats */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {(['Applied', 'Interviewing', 'Offer', 'Rejected'] as Status[]).map((s) => {
-            const count = (data?.applications ?? []).filter((a) => a.status === s).length;
-            return (
-              <div key={s} className="card px-4 py-3">
-                <p className="text-xs text-gray-500">{s}</p>
-                <p className="text-2xl font-semibold text-gray-900">{count}</p>
-              </div>
-            );
-          })}
+          {(["Applied", "Interviewing", "Offer", "Rejected"] as Status[]).map(
+            (s) => {
+              const count = (data?.applications ?? []).filter(
+                (a) => a.status === s,
+              ).length;
+              return (
+                <div key={s} className="card px-4 py-3">
+                  <p className="text-xs text-gray-500">{s}</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {count}
+                  </p>
+                </div>
+              );
+            },
+          )}
         </div>
 
         {/* Table */}
@@ -176,12 +206,17 @@ export function ApplicationsPage() {
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
             </div>
           ) : error ? (
-            <div className="py-20 text-center text-red-600 text-sm">{error.message}</div>
+            <div className="py-20 text-center text-red-600 text-sm">
+              {error.message}
+            </div>
           ) : applications.length === 0 ? (
             <div className="py-20 text-center">
               <Briefcase className="mx-auto h-10 w-10 text-gray-300" />
               <p className="mt-3 text-sm text-gray-500">No applications yet.</p>
-              <button className="btn-primary mt-4" onClick={() => setShowForm(true)}>
+              <button
+                className="btn-primary mt-4"
+                onClick={() => setShowForm(true)}
+              >
                 <Plus className="h-4 w-4" /> Add your first application
               </button>
             </div>
@@ -191,12 +226,15 @@ export function ApplicationsPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      S.N.
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Company
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Role
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500  uppercase tracking-wider hidden sm:table-cell">
                       Type
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -211,15 +249,29 @@ export function ApplicationsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-gray-50 transition-colors">
+                  {applications.map((app, index) => (
+                    <tr
+                      key={app.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900 text-sm">{app.company_name}</p>
+                        <p className="font-medium text-gray-900 text-sm">
+                          {index + 1}.
+                        </p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-gray-900 text-sm">
+                          {app.company_name}
+                        </p>
                         {app.notes && (
-                          <p className="text-xs text-gray-400 truncate max-w-[180px]">{app.notes}</p>
+                          <p className="text-xs text-gray-400 truncate max-w-[180px]">
+                            {app.notes}
+                          </p>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{app.job_title}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        {app.job_title}
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-500 hidden sm:table-cell">
                         {JOB_TYPE_LABELS[app.job_type]}
                       </td>
@@ -229,11 +281,14 @@ export function ApplicationsPage() {
                       <td className="px-4 py-3 hidden md:table-cell">
                         <div className="flex items-center gap-1 text-sm text-gray-500">
                           <Calendar className="h-3.5 w-3.5" />
-                          {new Date(app.applied_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
+                          {new Date(app.applied_date).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -270,7 +325,8 @@ export function ApplicationsPage() {
         </div>
 
         <p className="mt-3 text-xs text-gray-400 text-right">
-          {applications.length} application{applications.length !== 1 ? 's' : ''}
+          {applications.length} application
+          {applications.length !== 1 ? "s" : ""}
         </p>
       </main>
 

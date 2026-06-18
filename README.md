@@ -27,6 +27,34 @@ A full-stack web application to track job applications through different hiring 
 - **Stats bar** — counts per status at a glance
 - **Responsive UI** — works on mobile and desktop
 
+## Screenshots
+
+### Application List
+![Application list with status filters and stats](docs/page1.png)
+
+### Add Application Form
+![Add application modal with all form fields](docs/page2.png)
+
+### After Adding Application
+![Updated list after adding a new application](docs/page3.png)
+
+### Search by Company / Job Title
+![Search filtering results in real-time](docs/page4.png)
+
+### View Application Details
+![Application details dialog showing all fields](docs/page5.png)
+
+### Edit Application
+![Edit application form pre-filled with existing data](docs/page6.png)
+
+### Delete Confirmation
+![Delete confirmation dialog with cancel and confirm](docs/page7.png)
+
+### Filter by Status
+![Applications filtered by Rejected status](docs/page8.png)
+
+
+
 ## Prerequisites
 
 - Node.js 20+
@@ -81,7 +109,7 @@ npm install
 npm run dev
 ```
 
-Frontend runs at http://localhost:5173
+Frontend runs at http://localhost:5174
 
 ## Environment Variables
 
