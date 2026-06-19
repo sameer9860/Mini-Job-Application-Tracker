@@ -86,13 +86,31 @@ A full-stack web application to track job applications through different hiring 
 
 ```bash
 git clone https://github.com/sameer9860/Mini-Job-Application-Tracker.git
-cd job-tracker
-docker-compose up --build
+cd Mini-Job-Application-Tracker
+
+# Copy the example compose file, then add your database connection string
+cp docker-compose-example.yml docker-compose.yml
 ```
 
-- Frontend: http://localhost:5173
+Edit `docker-compose.yml` and replace `your database connection string` with your Postgres URL.
+
+If you use the **included Postgres service** in the compose file, set:
+
+```yaml
+DATABASE_URL: postgresql://postgres:postgres@db:5432/job_tracker_db
+```
+
+Then start everything:
+
+```bash
+docker compose up --build
+```
+
+- Frontend: http://localhost:5174
 - GraphQL API: http://localhost:4000/graphql
 - Apollo Sandbox: https://studio.apollographql.com/sandbox/explorer?endpoint=http://localhost:4000/graphql
+
+> `docker-compose.yml` is gitignored — copy from `docker-compose-example.yml` locally and add your own connection string.
 
 ## Manual Setup
 
@@ -109,8 +127,18 @@ CREATE DATABASE job_tracker;
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with your database connection string
+```
 
+Edit `backend/.env` and set `DATABASE_URL` to your database connection string, for example:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/job_tracker
+PORT=4000
+```
+
+Then install and run:
+
+```bash
 npm install
 npx prisma migrate dev --name init
 npx prisma generate
@@ -124,8 +152,17 @@ Backend runs at http://localhost:4000
 ```bash
 cd frontend
 cp .env.example .env
-# Edit VITE_GRAPHQL_URL if your backend is on a different port
+```
 
+Edit `frontend/.env` if your backend is not on the default port:
+
+```env
+VITE_GRAPHQL_URL=http://localhost:4000/graphql
+```
+
+Then install and run:
+
+```bash
 npm install
 npm run dev
 ```
@@ -140,6 +177,7 @@ Frontend runs at http://localhost:5174
 |----------|-------------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/job_tracker` |
 | `PORT` | Server port (optional) | `4000` |
+| `CORS_ORIGINS` | Allowed frontend origins (comma-separated, optional) | `http://localhost:5173,http://localhost:5174` |
 
 ### Frontend (`frontend/.env`)
 
@@ -298,24 +336,31 @@ CREATE TABLE applications (
 
 ```
 job-tracker/
+├── docs/                       # README screenshots (pageOne–pageEleven)
+├── docker-compose-example.yml  # Copy to docker-compose.yml locally
 ├── backend/
 │   ├── prisma/
-│   │   └── schema.prisma       # DB schema + migrations
+│   │   ├── schema.prisma       # DB schema
+│   │   └── migrations/         # Prisma migrations
 │   ├── src/
 │   │   ├── schema/
 │   │   │   ├── typeDefs.ts     # GraphQL SDL
-│   │   │   ├── resolvers.ts    # Query + Mutation resolvers
-│   │   │   └── validation.ts   # Zod schemas
-│   │   └── index.ts            # Fastify + Apollo server
+│   │   │   ├── resolvers.ts    # GraphQL resolvers
+│   │   │   ├── validation.ts   # Zod schemas
+│   │   │   └── validation.test.ts
+│   │   └── index.ts            # Fastify + Apollo + REST
+│   ├── .env.example
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── ApplicationActions.tsx
 │   │   │   ├── ApplicationForm.tsx
 │   │   │   ├── ConfirmDeleteDialog.tsx
-│   │   │   └── StatusBadge.tsx
+│   │   │   ├── StatusBadge.tsx
+│   │   │   └── ViewApplicationDialog.tsx
 │   │   ├── graphql/
-│   │   │   └── operations.ts   # All GQL queries + mutations
+│   │   │   └── operations.ts   # GraphQL queries + mutations
 │   │   ├── lib/
 │   │   │   ├── apollo.ts       # Apollo Client setup
 │   │   │   ├── cache.ts        # Optimistic cache updates
@@ -323,6 +368,7 @@ job-tracker/
 │   │   ├── pages/
 │   │   │   └── ApplicationsPage.tsx
 │   │   └── App.tsx
+│   ├── .env.example
 │   └── Dockerfile
-└── docker-compose.yml
+└── docker-compose.yml          # Local only (gitignored; copy from example)
 ```

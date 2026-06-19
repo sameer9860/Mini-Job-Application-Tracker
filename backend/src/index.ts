@@ -2,13 +2,40 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { ApolloServer } from '@apollo/server';
 import { fastifyApolloDrainPlugin, fastifyApolloHandler } from '@as-integrations/fastify';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Status, Prisma } from '@prisma/client';
 import { typeDefs } from './schema/typeDefs.js';
 import { resolvers } from './schema/resolvers.js';
 import { CreateApplicationSchema, UpdateApplicationSchema } from './schema/validation.js';
 
 const app = Fastify({ logger: true });
 const prisma = new PrismaClient();
+
+const VALID_STATUSES: Status[] = ['Applied', 'Interviewing', 'Offer', 'Rejected'];
+
+function isStatus(value: string): value is Status {
+  return VALID_STATUSES.includes(value as Status);
+}
+
+function buildApplicationsWhere(
+  status?: string,
+  search?: string,
+): Prisma.ApplicationWhereInput {
+  return {
+    ...(status && isStatus(status) ? { status } : {}),
+    ...(search
+      ? {
+          OR: [
+            { company_name: { contains: search, mode: 'insensitive' } },
+            { job_title: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {}),
+  };
+}
+
+function getErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : 'Unknown error';
+}
 
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
@@ -50,18 +77,7 @@ app.get('/applications', async (request, reply) => {
   try {
     const take = Math.min(Math.max(parseInt(limit ?? '10', 10) || 10, 1), 100);
     const skip = Math.max(parseInt(offset ?? '0', 10) || 0, 0);
-
-    const where = {
-      ...(status ? { status: status as any } : {}),
-      ...(search
-        ? {
-            OR: [
-              { company_name: { contains: search, mode: 'insensitive' as const } },
-              { job_title: { contains: search, mode: 'insensitive' as const } },
-            ],
-          }
-        : {}),
-    };
+    const where = buildApplicationsWhere(status, search);
 
     const [items, total] = await Promise.all([
       prisma.application.findMany({
@@ -74,9 +90,9 @@ app.get('/applications', async (request, reply) => {
     ]);
 
     return { items, total };
-  } catch (err: any) {
+  } catch (err: unknown) {
     app.log.error(err);
-    return reply.status(500).send({ error: 'Internal Server Error', message: err.message });
+    return reply.status(500).send({ error: 'Internal Server Error', message: getErrorMessage(err) });
   }
 });
 
@@ -91,9 +107,9 @@ app.get('/applications/:id', async (request, reply) => {
       return reply.status(404).send({ error: 'Not Found', message: 'Application not found' });
     }
     return application;
-  } catch (err: any) {
+  } catch (err: unknown) {
     app.log.error(err);
-    return reply.status(500).send({ error: 'Internal Server Error', message: err.message });
+    return reply.status(500).send({ error: 'Internal Server Error', message: getErrorMessage(err) });
   }
 });
 
@@ -117,9 +133,9 @@ app.post('/applications', async (request, reply) => {
       },
     });
     return reply.status(201).send(application);
-  } catch (err: any) {
+  } catch (err: unknown) {
     app.log.error(err);
-    return reply.status(500).send({ error: 'Internal Server Error', message: err.message });
+    return reply.status(500).send({ error: 'Internal Server Error', message: getErrorMessage(err) });
   }
 });
 
@@ -152,9 +168,9 @@ app.patch('/applications/:id', async (request, reply) => {
       },
     });
     return application;
-  } catch (err: any) {
+  } catch (err: unknown) {
     app.log.error(err);
-    return reply.status(500).send({ error: 'Internal Server Error', message: err.message });
+    return reply.status(500).send({ error: 'Internal Server Error', message: getErrorMessage(err) });
   }
 });
 
@@ -173,9 +189,9 @@ app.delete('/applications/:id', async (request, reply) => {
       where: { id },
     });
     return reply.status(204).send();
-  } catch (err: any) {
+  } catch (err: unknown) {
     app.log.error(err);
-    return reply.status(500).send({ error: 'Internal Server Error', message: err.message });
+    return reply.status(500).send({ error: 'Internal Server Error', message: getErrorMessage(err) });
   }
 });
 

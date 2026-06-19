@@ -5,9 +5,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: 
-      POSTGRES_USER: 
-      POSTGRES_PASSWORD: 
+      POSTGRES_DB: job_tracker_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - '5435:5432'
     volumes:
@@ -24,7 +24,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: 
+      # Add your database connection string.
+      # Using the Postgres service above: postgresql://postgres:postgres@db:5432/job_tracker_db
+      DATABASE_URL: "your database connection string"
       PORT: 4000
     ports:
       - '4000:4000'
@@ -37,7 +39,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_GRAPHQL_URL:
+        VITE_GRAPHQL_URL: http://localhost:4000/graphql
     restart: unless-stopped
     ports:
       - '5174:80'
