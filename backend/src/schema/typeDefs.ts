@@ -42,8 +42,22 @@ export const typeDefs = `#graphql
     notes: String
   }
 
+  type PaginatedApplications {
+    items: [Application!]!
+    total: Int!
+  }
+
+  type ApplicationStats {
+    total: Int!
+    applied: Int!
+    interviewing: Int!
+    offer: Int!
+    rejected: Int!
+  }
+
   type Query {
-    applications(status: Status, search: String): [Application!]!
+    applications(status: Status, search: String, limit: Int, offset: Int): PaginatedApplications!
+    applicationStats(search: String): ApplicationStats!
     application(id: ID!): Application
   }
 

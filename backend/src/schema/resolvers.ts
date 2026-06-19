@@ -7,6 +7,29 @@ const prisma = new PrismaClient();
 interface ApplicationsArgs {
   status?: Status;
   search?: string;
+  limit?: number;
+  offset?: number;
+}
+
+interface ApplicationStatsArgs {
+  search?: string;
+}
+
+function buildSearchWhere(search?: string) {
+  return search
+    ? {
+        OR: [
+          { company_name: { contains: search, mode: 'insensitive' as const } },
+          { job_title: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
+}
+
+function clampPagination(limit?: number, offset?: number) {
+  const take = Math.min(Math.max(limit ?? 10, 1), 100);
+  const skip = Math.max(offset ?? 0, 0);
+  return { take, skip };
 }
 
 interface ApplicationArgs {
@@ -43,29 +66,47 @@ interface DeleteApplicationArgs {
 export const resolvers = {
   Query: {
     applications: async (_: unknown, args: ApplicationsArgs) => {
-      const { status, search } = args;
+      const { status, search, limit, offset } = args;
+      const { take, skip } = clampPagination(limit, offset);
 
-      const applications = await prisma.application.findMany({
-        where: {
-          ...(status ? { status } : {}),
-          ...(search
-            ? {
-                OR: [
-                  { company_name: { contains: search, mode: 'insensitive' } },
-                  { job_title: { contains: search, mode: 'insensitive' } },
-                ],
-              }
-            : {}),
-        },
-        orderBy: { created_at: 'desc' },
-      });
+      const where = {
+        ...(status ? { status } : {}),
+        ...buildSearchWhere(search),
+      };
 
-      return applications.map((app) => ({
-        ...app,
-        applied_date: app.applied_date.toISOString(),
-        created_at: app.created_at.toISOString(),
-        updated_at: app.updated_at.toISOString(),
-      }));
+      const [applications, total] = await Promise.all([
+        prisma.application.findMany({
+          where,
+          orderBy: { created_at: 'desc' },
+          take,
+          skip,
+        }),
+        prisma.application.count({ where }),
+      ]);
+
+      return {
+        items: applications.map((app) => ({
+          ...app,
+          applied_date: app.applied_date.toISOString(),
+          created_at: app.created_at.toISOString(),
+          updated_at: app.updated_at.toISOString(),
+        })),
+        total,
+      };
+    },
+
+    applicationStats: async (_: unknown, args: ApplicationStatsArgs) => {
+      const where = buildSearchWhere(args.search);
+
+      const [total, applied, interviewing, offer, rejected] = await Promise.all([
+        prisma.application.count({ where }),
+        prisma.application.count({ where: { ...where, status: 'Applied' } }),
+        prisma.application.count({ where: { ...where, status: 'Interviewing' } }),
+        prisma.application.count({ where: { ...where, status: 'Offer' } }),
+        prisma.application.count({ where: { ...where, status: 'Rejected' } }),
+      ]);
+
+      return { total, applied, interviewing, offer, rejected };
     },
 
     application: async (_: unknown, args: ApplicationArgs) => {

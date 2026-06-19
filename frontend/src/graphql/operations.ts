@@ -16,9 +16,24 @@ export const APPLICATION_FIELDS = gql`
 
 export const GET_APPLICATIONS = gql`
   ${APPLICATION_FIELDS}
-  query GetApplications($status: Status, $search: String) {
-    applications(status: $status, search: $search) {
-      ...ApplicationFields
+  query GetApplications($status: Status, $search: String, $limit: Int, $offset: Int) {
+    applications(status: $status, search: $search, limit: $limit, offset: $offset) {
+      items {
+        ...ApplicationFields
+      }
+      total
+    }
+  }
+`;
+
+export const GET_APPLICATION_STATS = gql`
+  query GetApplicationStats($search: String) {
+    applicationStats(search: $search) {
+      total
+      applied
+      interviewing
+      offer
+      rejected
     }
   }
 `;

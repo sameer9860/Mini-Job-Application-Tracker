@@ -39,25 +39,41 @@ app.route({
 app.get('/health', async () => ({ status: 'ok' }));
 
 // REST API Endpoints
-// 1. GET /applications - list all applications with status and search filtering
+// 1. GET /applications - list applications with status, search, and pagination
 app.get('/applications', async (request, reply) => {
-  const { status, search } = request.query as { status?: string; search?: string };
+  const { status, search, limit, offset } = request.query as {
+    status?: string;
+    search?: string;
+    limit?: string;
+    offset?: string;
+  };
   try {
-    const applications = await prisma.application.findMany({
-      where: {
-        ...(status ? { status: status as any } : {}),
-        ...(search
-          ? {
-              OR: [
-                { company_name: { contains: search, mode: 'insensitive' } },
-                { job_title: { contains: search, mode: 'insensitive' } },
-              ],
-            }
-          : {}),
-      },
-      orderBy: { created_at: 'desc' },
-    });
-    return applications;
+    const take = Math.min(Math.max(parseInt(limit ?? '10', 10) || 10, 1), 100);
+    const skip = Math.max(parseInt(offset ?? '0', 10) || 0, 0);
+
+    const where = {
+      ...(status ? { status: status as any } : {}),
+      ...(search
+        ? {
+            OR: [
+              { company_name: { contains: search, mode: 'insensitive' as const } },
+              { job_title: { contains: search, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        take,
+        skip,
+      }),
+      prisma.application.count({ where }),
+    ]);
+
+    return { items, total };
   } catch (err: any) {
     app.log.error(err);
     return reply.status(500).send({ error: 'Internal Server Error', message: err.message });

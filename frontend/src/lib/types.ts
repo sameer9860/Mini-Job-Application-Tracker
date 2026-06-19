@@ -13,6 +13,26 @@ export interface Application {
   updated_at: string;
 }
 
+export interface PaginatedApplications {
+  items: Application[];
+  total: number;
+}
+
+export interface ApplicationStats {
+  total: number;
+  applied: number;
+  interviewing: number;
+  offer: number;
+  rejected: number;
+}
+
+export interface ApplicationsQueryVariables {
+  status?: Status;
+  search?: string;
+  limit: number;
+  offset: number;
+}
+
 export interface CreateApplicationInput {
   company_name: string;
   job_title: string;
