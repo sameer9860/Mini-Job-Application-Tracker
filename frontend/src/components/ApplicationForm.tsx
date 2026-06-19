@@ -46,9 +46,9 @@ export function ApplicationForm({ initial, onSubmit, onClose, isLoading }: Appli
   const isEditing = !!initial;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="card w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-4">
+      <div className="card w-full sm:max-w-lg max-h-[92vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-xl">
+        <div className="flex items-center justify-between border-b border-gray-200 px-4 sm:px-6 py-4">
           <h2 className="text-lg font-semibold text-gray-900">
             {isEditing ? 'Edit application' : 'Add application'}
           </h2>
@@ -60,7 +60,7 @@ export function ApplicationForm({ initial, onSubmit, onClose, isLoading }: Appli
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4">
           {/* Company Name */}
           <div>
             <label className="label" htmlFor="company_name">
@@ -97,7 +97,7 @@ export function ApplicationForm({ initial, onSubmit, onClose, isLoading }: Appli
           </div>
 
           {/* Job Type + Status (side by side) */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label" htmlFor="job_type">
                 Job type <span className="text-red-500">*</span>
@@ -163,11 +163,16 @@ export function ApplicationForm({ initial, onSubmit, onClose, isLoading }: Appli
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" className="btn-secondary" onClick={onClose} disabled={isLoading}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
+            <button
+              type="button"
+              className="btn-secondary w-full sm:w-auto"
+              onClick={onClose}
+              disabled={isLoading}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled={isLoading}>
+            <button type="submit" className="btn-primary w-full sm:w-auto" disabled={isLoading}>
               {isLoading ? 'Saving...' : isEditing ? 'Save changes' : 'Add application'}
             </button>
           </div>

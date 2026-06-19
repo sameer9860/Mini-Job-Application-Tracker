@@ -8,12 +8,16 @@ export function App() {
     <ApolloProvider client={apolloClient}>
       <ApplicationsPage />
       <Toaster
-        position="bottom-right"
+        position="bottom-center"
+        containerStyle={{
+          bottom: 16,
+        }}
         toastOptions={{
           style: {
             fontSize: '14px',
             borderRadius: '10px',
             border: '1px solid #e5e7eb',
+            maxWidth: 'calc(100vw - 2rem)',
           },
         }}
       />

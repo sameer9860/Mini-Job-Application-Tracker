@@ -33,10 +33,10 @@ export function ViewApplicationDialog({ application, onClose }: ViewApplicationD
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="card w-full max-w-lg overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-4">
+      <div className="card w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-t-2xl sm:rounded-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2">
             <Info className="h-5 w-5 text-indigo-600" />
             <h2 className="text-lg font-semibold text-gray-900">Application Details</h2>
@@ -50,18 +50,22 @@ export function ViewApplicationDialog({ application, onClose }: ViewApplicationD
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
           <div>
             <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Company</span>
-            <h3 className="text-2xl font-bold text-gray-900 mt-0.5">{application.company_name}</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-0.5 break-words">
+              {application.company_name}
+            </h3>
           </div>
 
           <div>
             <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Role</span>
-            <p className="text-lg text-gray-800 font-medium mt-0.5">{application.job_title}</p>
+            <p className="text-base sm:text-lg text-gray-800 font-medium mt-0.5 break-words">
+              {application.job_title}
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-b border-gray-100 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-b border-gray-100 py-4">
             <div className="flex items-start gap-2.5">
               <Tag className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
@@ -116,8 +120,8 @@ export function ViewApplicationDialog({ application, onClose }: ViewApplicationD
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-100">
-          <button onClick={onClose} className="btn-secondary">
+        <div className="bg-gray-50 px-4 sm:px-6 py-4 flex justify-stretch sm:justify-end border-t border-gray-100">
+          <button onClick={onClose} className="btn-secondary w-full sm:w-auto">
             Close
           </button>
         </div>
