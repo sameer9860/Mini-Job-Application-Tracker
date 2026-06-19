@@ -34,34 +34,45 @@ A full-stack web application to track job applications through different hiring 
 - **Add application** via modal form with validation
 - **Edit application** — pre-filled form, partial updates
 - **Delete with confirmation** dialog
-- **Stats bar** — counts per status at a glance
+- **Stats bar** — live counts per status (search-aware)
+- **Pagination** — browse applications 10 per page with prev/next controls
+- **Optimistic UI** — instant list updates on create, edit, and delete
 - **Responsive UI** — works on mobile and desktop
 
 ## Screenshots
 
 ### Application List
-![Application list with status filters and stats](docs/page1.png)
+![Application list with status filters, stats, and pagination](docs/pageOne.png)
 
-### Add Application Form
-![Add application modal with all form fields](docs/page2.png)
-
-### After Adding Application
-![Updated list after adding a new application](docs/page3.png)
-
-### Search by Company / Job Title
-![Search filtering results in real-time](docs/page4.png)
+### Pagination — Page 2
+![Second page of paginated application results](docs/pageTwo.png)
 
 ### View Application Details
-![Application details dialog showing all fields](docs/page5.png)
+![Application details dialog showing all fields](docs/pageThree.png)
 
 ### Edit Application
-![Edit application form pre-filled with existing data](docs/page6.png)
+![Edit application form pre-filled with existing data](docs/pageFour.png)
 
 ### Delete Confirmation
-![Delete confirmation dialog with cancel and confirm](docs/page7.png)
+![Delete confirmation dialog with cancel and confirm](docs/pageFive.png)
 
-### Filter by Status
-![Applications filtered by Rejected status](docs/page8.png)
+### Application List (All Statuses)
+![Full application list with status badges and action buttons](docs/pageSix.png)
+
+### Search by Company / Job Title
+![Search filtering results by company or role](docs/pageSeven.png)
+
+### Filter by Applied
+![Applications filtered by Applied status](docs/pageEight.png)
+
+### Filter by Interviewing
+![Applications filtered by Interviewing status](docs/pageNine.png)
+
+### Filter by Offer
+![Applications filtered by Offer status](docs/pageTen.png)
+
+### Filter by Rejected
+![Applications filtered by Rejected status](docs/pageEleven.png)
 
 
 
@@ -166,11 +177,20 @@ The server supports a dual API layout with both GraphQL and REST endpoints enabl
 
 | Method | Endpoint | Description | Query Parameters |
 |--------|----------|-------------|------------------|
-| **GET** | `/applications` | List all job applications | `status` (Enum), `search` (String) |
+| **GET** | `/applications` | List job applications (paginated) | `status`, `search`, `limit` (default 10), `offset` (default 0) |
 | **GET** | `/applications/:id` | Get details of a single application | |
 | **POST** | `/applications` | Create a new job application | |
 | **PATCH** | `/applications/:id` | Partially update an application | |
 | **DELETE** | `/applications/:id` | Delete an application | |
+
+### Response shape (GET /applications)
+
+```json
+{
+  "items": [ { "id": "...", "company_name": "...", "...": "..." } ],
+  "total": 42
+}
+```
 
 ### Request Bodies (REST)
 
@@ -205,10 +225,20 @@ https://studio.apollographql.com/sandbox/explorer?endpoint=http://localhost:4000
 ### Queries
 
 ```graphql
-# List all (with optional filter + search)
+# List with filter, search, and pagination
 query {
-  applications(status: Applied, search: "Google") {
-    id company_name job_title status applied_date job_type notes
+  applications(status: Applied, search: "Google", limit: 10, offset: 0) {
+    items {
+      id company_name job_title status applied_date job_type notes
+    }
+    total
+  }
+}
+
+# Status counts (optionally filtered by search)
+query {
+  applicationStats(search: "Google") {
+    total applied interviewing offer rejected
   }
 }
 
@@ -288,6 +318,7 @@ job-tracker/
 │   │   │   └── operations.ts   # All GQL queries + mutations
 │   │   ├── lib/
 │   │   │   ├── apollo.ts       # Apollo Client setup
+│   │   │   ├── cache.ts        # Optimistic cache updates
 │   │   │   └── types.ts        # TypeScript interfaces
 │   │   ├── pages/
 │   │   │   └── ApplicationsPage.tsx
